@@ -19,10 +19,17 @@ public class Reload4jServiceProvider implements SLF4JServiceProvider {
     public static String REQUESTED_API_VERSION = "2.0.99"; // !final
 
     private ILoggerFactory loggerFactory;
-    private IMarkerFactory markerFactory;
-    private MDCAdapter mdcAdapter;
+
+    // LoggerFactory expects providers to initialize markerFactory as early as possible.
+    private final IMarkerFactory markerFactory;
+
+    // LoggerFactory expects providers to have a valid MDCAdapter field
+    // as early as possible, preferably at construction time.
+    private final MDCAdapter mdcAdapter;
 
     public Reload4jServiceProvider() {
+        markerFactory = new BasicMarkerFactory();
+        mdcAdapter = new Reload4jMDCAdapter();
         try {
             @SuppressWarnings("unused")
             Level level = Level.TRACE;
@@ -34,8 +41,6 @@ public class Reload4jServiceProvider implements SLF4JServiceProvider {
     @Override
     public void initialize() {
         loggerFactory = new Reload4jLoggerFactory();
-        markerFactory = new BasicMarkerFactory();
-        mdcAdapter = new Reload4jMDCAdapter();
     }
 
     @Override
