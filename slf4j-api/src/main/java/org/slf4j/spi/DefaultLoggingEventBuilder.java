@@ -1,25 +1,25 @@
-/**
- * Copyright (c) 2004-2022 QOS.ch
+/*
+ * Copyright (C) 2004-2026, QOS.ch (Switzerland)
  * All rights reserved.
- * <p>
- * Permission is hereby granted, free  of charge, to any person obtaining
- * a  copy  of this  software  and  associated  documentation files  (the
- * "Software"), to  deal in  the Software without  restriction, including
- * without limitation  the rights to  use, copy, modify,  merge, publish,
- * distribute,  sublicense, and/or sell  copies of  the Software,  and to
- * permit persons to whom the Software  is furnished to do so, subject to
- * the following conditions:
- * <p>
- * The  above  copyright  notice  and  this permission  notice  shall  be
- * included in all copies or substantial portions of the Software.
- * <p>
- * THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
- * EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
- * MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ *  Permission is hereby granted, free  of charge, to any person obtaining
+ *  a  copy  of this  software  and  associated  documentation files  (the
+ *  "Software"), to  deal in  the Software without  restriction, including
+ *  without limitation  the rights to  use, copy, modify,  merge, publish,
+ *  distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ *  permit persons to whom the Software  is furnished to do so, subject to
+ *  the following conditions:
+ *
+ *  The  above  copyright  notice  and  this permission  notice  shall  be
+ *  included in all copies or substantial portions of the Software.
+ *
+ *  THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ *  EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ *  MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ *  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ *  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ *  OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.slf4j.spi;
 
@@ -32,9 +32,15 @@ import org.slf4j.event.DefaultLoggingEvent;
 import org.slf4j.event.KeyValuePair;
 import org.slf4j.event.Level;
 import org.slf4j.event.LoggingEvent;
+import org.slf4j.helpers.CallerData;
+import org.slf4j.helpers.Reporter;
 
 /**
- * Default implementation of {@link LoggingEventBuilder}
+ * Default implementation of {@link LoggingEventBuilder}.
+ *
+ * <p>It is assumed that when </p>
+ *
+ * @since 2.0.0
  */
 public class DefaultLoggingEventBuilder implements LoggingEventBuilder, CallerBoundaryAware {
 
@@ -75,6 +81,7 @@ public class DefaultLoggingEventBuilder implements LoggingEventBuilder, CallerBo
         this.loggingEvent.addArgument(p);
         return this;
     }
+
 
     @Override
     public LoggingEventBuilder addArgument(Supplier<?> objectSupplier) {
@@ -254,10 +261,31 @@ public class DefaultLoggingEventBuilder implements LoggingEventBuilder, CallerBo
         for(KeyValuePair kvp : keyValuePairList) {
             sb.append(kvp.key);
             sb.append('=');
-            sb.append(kvp.value);
+            // Same protection as MessageFormatter.safeObjectAppend: a failing
+            // toString() (including StackOverflowError) must not abort logging.
+            // See https://github.com/qos-ch/slf4j/issues/448
+            safeObjectAppend(sb, kvp.value);
             sb.append(' ');
         }
         return sb;
+    }
+
+    /**
+     * Append {@code o} to {@code sb}, catching any {@link Throwable} thrown by
+     * {@link Object#toString()} and substituting {@code [FAILED toString()]}.
+     * Mirrors {@code MessageFormatter.safeObjectAppend}.
+     */
+    private static void safeObjectAppend(StringBuilder sb, Object o) {
+        if (o == null) {
+            sb.append("null");
+            return;
+        }
+        try {
+            sb.append(o.toString());
+        } catch (Throwable t) {
+            Reporter.error("Failed toString() invocation on an object of type [" + o.getClass().getName() + "]", t);
+            sb.append("[FAILED toString()]");
+        }
     }
 
     private String mergeMessage(String msg, StringBuilder sb) {
@@ -269,9 +297,14 @@ public class DefaultLoggingEventBuilder implements LoggingEventBuilder, CallerBo
         }
     }
 
-
-
-
-
-
+    @Override
+    public LoggingEventBuilder withCallerData(int depth) {
+        String fqnOfInvokingClass = loggingEvent.getCallerBoundary();
+        if (fqnOfInvokingClass == null) {
+            fqnOfInvokingClass = DLEB_FQCN;
+        }
+        StackTraceElement[] callerData = CallerData.extract(new Throwable(), fqnOfInvokingClass, depth, null);
+        loggingEvent.setCallerData(callerData);
+        return this;
+    }
 }

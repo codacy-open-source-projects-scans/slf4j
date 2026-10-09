@@ -29,8 +29,7 @@ import java.io.PrintStream;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.LoggerFactoryFriend;
-import org.slf4j.helpers.StringPrintStream;
-import org.slf4j.testHarness.MultithreadedInitializationTest;
+import org.slf4j.testing.MultithreadedInitializationTest;
 
 public class SimpleLoggerMultithreadedInitializationTest extends MultithreadedInitializationTest {
     // final static int THREAD_COUNT = 4 + Runtime.getRuntime().availableProcessors() * 2;
@@ -41,8 +40,6 @@ public class SimpleLoggerMultithreadedInitializationTest extends MultithreadedIn
     //
     // final int diff = new Random().nextInt(10000);
     static int NUM_LINES_IN_SLF4J_REPLAY_WARNING = 3;
-    static int NUM_LINES_IN_SLF4J_CONNECTED_WITH_PROVIDER_INFO = 1;
-
     private final PrintStream oldErr = System.err;
     final String loggerName = this.getClass().getName();
     StringPrintStream sps = new StringPrintStream(oldErr, false);
@@ -69,7 +66,7 @@ public class SimpleLoggerMultithreadedInitializationTest extends MultithreadedIn
 
     @Override
     protected int extraLogEvents() {
-        return NUM_LINES_IN_SLF4J_REPLAY_WARNING + NUM_LINES_IN_SLF4J_CONNECTED_WITH_PROVIDER_INFO;
+        return NUM_LINES_IN_SLF4J_REPLAY_WARNING;
     }
 
 }

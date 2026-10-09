@@ -1,3 +1,27 @@
+/*
+ * Copyright (C) 2004-2026, QOS.ch (Switzerland)
+ * All rights reserved.
+ *
+ *  Permission is hereby granted, free  of charge, to any person obtaining
+ *  a  copy  of this  software  and  associated  documentation files  (the
+ *  "Software"), to  deal in  the Software without  restriction, including
+ *  without limitation  the rights to  use, copy, modify,  merge, publish,
+ *  distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ *  permit persons to whom the Software  is furnished to do so, subject to
+ *  the following conditions:
+ *
+ *  The  above  copyright  notice  and  this permission  notice  shall  be
+ *  included in all copies or substantial portions of the Software.
+ *
+ *  THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ *  EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ *  MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ *  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ *  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ *  OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package org.slf4j.jul;
 
 import static org.junit.Assert.assertEquals;
@@ -128,6 +152,35 @@ public class FluentApiInvocationTest {
         logger.atDebug().addKeyValue("oldT", oldT).addKeyValue("newT", newT).log("Temperature changed.");
         assertLogMessage("oldT=15 newT=16 Temperature changed.", 1);
 
+    }
+
+    /**
+     * Regression for https://github.com/qos-ch/slf4j/issues/448:
+     * a toString() that throws (including StackOverflowError) on an
+     * addKeyValue value must not abort logging; same as message args.
+     */
+    @Test
+    public void keyValuePairWithFailingToString() {
+        Object bad = new Object() {
+            @Override
+            public String toString() {
+                throw new IllegalStateException("boom");
+            }
+        };
+        logger.atDebug().addKeyValue("key", bad).log("msg with key/value");
+        assertLogMessage("key=[FAILED toString()] msg with key/value", 0);
+    }
+
+    @Test
+    public void keyValuePairWithStackOverflowInToString() {
+        Object overflow = new Object() {
+            @Override
+            public String toString() {
+                return super.toString() + this.toString();
+            }
+        };
+        logger.atDebug().addKeyValue("key", overflow).log("msg with key/value");
+        assertLogMessage("key=[FAILED toString()] msg with key/value", 0);
     }
 
     private void assertLogMessage(String expected, int index) {

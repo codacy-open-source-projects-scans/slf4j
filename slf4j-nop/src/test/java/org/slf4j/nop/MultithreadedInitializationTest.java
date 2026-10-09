@@ -1,25 +1,25 @@
-/**
- * Copyright (c) 2004-2016 QOS.ch
+/*
+ * Copyright (C) 2004-2026, QOS.ch (Switzerland)
  * All rights reserved.
- * <p>
- * Permission is hereby granted, free  of charge, to any person obtaining
- * a  copy  of this  software  and  associated  documentation files  (the
- * "Software"), to  deal in  the Software without  restriction, including
- * without limitation  the rights to  use, copy, modify,  merge, publish,
- * distribute,  sublicense, and/or sell  copies of  the Software,  and to
- * permit persons to whom the Software  is furnished to do so, subject to
- * the following conditions:
- * <p>
- * The  above  copyright  notice  and  this permission  notice  shall  be
- * included in all copies or substantial portions of the Software.
- * <p>
- * THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
- * EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
- * MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ *  Permission is hereby granted, free  of charge, to any person obtaining
+ *  a  copy  of this  software  and  associated  documentation files  (the
+ *  "Software"), to  deal in  the Software without  restriction, including
+ *  without limitation  the rights to  use, copy, modify,  merge, publish,
+ *  distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ *  permit persons to whom the Software  is furnished to do so, subject to
+ *  the following conditions:
+ *
+ *  The  above  copyright  notice  and  this permission  notice  shall  be
+ *  included in all copies or substantial portions of the Software.
+ *
+ *  THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ *  EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ *  MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ *  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ *  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ *  OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.slf4j.nop;
 
@@ -29,9 +29,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.LoggerFactoryFriend;
-import org.slf4j.helpers.StringPrintStream;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -42,7 +43,6 @@ import static org.slf4j.helpers.Reporter.SLF4J_INTERNAL_VERBOSITY_KEY;
 
 public class MultithreadedInitializationTest {
 
-    static int NUM_LINES_IN_SLF4J_CONNECTED_WITH_PROVIDER_INFO = 1;
     final static int THREAD_COUNT = 4 + Runtime.getRuntime().availableProcessors() * 2;
 
     private static final AtomicLong EVENT_COUNT = new AtomicLong(0);
@@ -52,7 +52,7 @@ public class MultithreadedInitializationTest {
     int diff = new Random().nextInt(10000);
     String loggerName = "org.slf4j.impl.MultithreadedInitializationTest";
     private final PrintStream oldErr = System.err;
-    StringPrintStream sps = new StringPrintStream(oldErr, false);
+    StringPrintStream sps = new StringPrintStream(oldErr);
 
     @Before
     public void setup() {
@@ -82,7 +82,8 @@ public class MultithreadedInitializationTest {
         logger.info("hello");
         EVENT_COUNT.getAndIncrement();
 
-        assertEquals(NUM_LINES_IN_SLF4J_CONNECTED_WITH_PROVIDER_INFO, sps.stringList.size());
+        // SLF4J(I): Actual provider is of type [org.slf4j.nop.NOPServiceProvider@21b3698b]
+        assertEquals(1, sps.stringList.size());
     }
 
     private static LoggerAccessingThread[] harness() throws InterruptedException, BrokenBarrierException {
@@ -124,31 +125,31 @@ public class MultithreadedInitializationTest {
 
     ;
 
-//    public static class StringPrintStream extends PrintStream {
-//
-//        public static final String LINE_SEP = System.getProperty("line.separator");
-//        PrintStream other;
-//        List<String> stringList = new ArrayList<>();
-//
-//        public StringPrintStream(PrintStream ps) {
-//            super(ps);
-//            other = ps;
-//        }
-//
-//        public void print(String s) {
-//            other.print(s);
-//            stringList.add(s);
-//        }
-//
-//        public void println(String s) {
-//            other.println(s);
-//            stringList.add(s);
-//        }
-//
-//        public void println(Object o) {
-//            other.println(o);
-//            stringList.add(o.toString());
-//        }
-//    };
+    public static class StringPrintStream extends PrintStream {
+
+        public static final String LINE_SEP = System.getProperty("line.separator");
+        PrintStream other;
+        List<String> stringList = new ArrayList<>();
+
+        public StringPrintStream(PrintStream ps) {
+            super(ps);
+            other = ps;
+        }
+
+        public void print(String s) {
+            other.print(s);
+            stringList.add(s);
+        }
+
+        public void println(String s) {
+            other.println(s);
+            stringList.add(s);
+        }
+
+        public void println(Object o) {
+            other.println(o);
+            stringList.add(o.toString());
+        }
+    };
 
 }

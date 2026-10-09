@@ -1,6 +1,6 @@
 /*
- *  Copyright (c) 2004-2024 QOS.ch
- *  All rights reserved.
+ * Copyright (C) 2004-2026, QOS.ch (Switzerland)
+ * All rights reserved.
  *
  *  Permission is hereby granted, free  of charge, to any person obtaining
  *  a  copy  of this  software  and  associated  documentation files  (the
@@ -24,6 +24,9 @@
 
 package org.slf4j.helpers;
 
+import java.lang.module.ModuleDescriptor;
+import java.util.Optional;
+
 /**
  * Various utility methods
  *
@@ -39,9 +42,9 @@ public class Slf4jEnvUtil {
      * @since 2.0.14
      */
     static public String slf4jVersion() {
-//        String moduleVersion = slf4jVersionByModule();
-//        if(moduleVersion != null)
-//            return moduleVersion;
+        String moduleVersion = slf4jVersionByModule();
+        if(moduleVersion != null)
+            return moduleVersion;
 
         Package pkg = Slf4jEnvUtil.class.getPackage();
         if(pkg == null) {
@@ -58,16 +61,16 @@ public class Slf4jEnvUtil {
      * @return current version or null if missing version data
      * @since 2.0.14
      */
-//    static private String slf4jVersionByModule() {
-//        Module module = Slf4jEnvUtil.class.getModule();
-//        if (module == null)
-//            return null;
-//
-//        ModuleDescriptor md = module.getDescriptor();
-//        if (md == null)
-//            return null;
-//        Optional<String> opt = md.rawVersion();
-//        return opt.orElse(null);
-//    }
+    static private String slf4jVersionByModule() {
+        Module module = Slf4jEnvUtil.class.getModule();
+        if (module == null)
+            return null;
+
+        ModuleDescriptor md = module.getDescriptor();
+        if (md == null)
+            return null;
+        Optional<String> opt = md.rawVersion();
+        return opt.orElse(null);
+    }
 
 }

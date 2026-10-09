@@ -1,26 +1,25 @@
-/**
- * Copyright (c) 2004-2011 QOS.ch
+/*
+ * Copyright (C) 2004-2026, QOS.ch (Switzerland)
  * All rights reserved.
  *
- * Permission is hereby granted, free  of charge, to any person obtaining
- * a  copy  of this  software  and  associated  documentation files  (the
- * "Software"), to  deal in  the Software without  restriction, including
- * without limitation  the rights to  use, copy, modify,  merge, publish,
- * distribute,  sublicense, and/or sell  copies of  the Software,  and to
- * permit persons to whom the Software  is furnished to do so, subject to
- * the following conditions:
+ *  Permission is hereby granted, free  of charge, to any person obtaining
+ *  a  copy  of this  software  and  associated  documentation files  (the
+ *  "Software"), to  deal in  the Software without  restriction, including
+ *  without limitation  the rights to  use, copy, modify,  merge, publish,
+ *  distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ *  permit persons to whom the Software  is furnished to do so, subject to
+ *  the following conditions:
  *
- * The  above  copyright  notice  and  this permission  notice  shall  be
- * included in all copies or substantial portions of the Software.
+ *  The  above  copyright  notice  and  this permission  notice  shall  be
+ *  included in all copies or substantial portions of the Software.
  *
- * THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
- * EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
- * MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ *  THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ *  EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ *  MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ *  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ *  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ *  OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.slf4j.bridge;
 
@@ -41,8 +40,8 @@ import org.slf4j.spi.LocationAwareLogger;
 /**
  * <p>Bridge/route all JUL log records to the SLF4J API.
  * <p>Essentially, the idea is to install on the root logger an instance of
- * <code>SLF4JBridgeHandler</code> as the sole JUL handler in the system. Subsequently, the
- * SLF4JBridgeHandler instance will redirect all JUL log records are redirected
+ * {@link SLF4JBridgeHandler} as the sole JUL handler in the system. Subsequently, the
+ * <code>SLF4JBridgeHandler</code> instance will redirect all JUL log records are redirected
  * to the SLF4J API based on the following mapping of levels:
  * 
  * <pre>
@@ -92,13 +91,10 @@ import org.slf4j.spi.LocationAwareLogger;
  *
  * <h2>As a Java 9/Jigsaw module</h2>
  * 
- * <p>Given that <b>to</b> is a reserved keyword under Java 9 within module productions, 
- * the MANIFEST.MF file in <em>jul-to-slf4j.jar</em> declares <b>jul_to_slf4j</b> as
- * its Automatic Module Name. Thus, if your application is Jigsaw modularized, the requires 
- * statement in your <em>module-info.java</em> needs to be <b>jul_to_slf4j</b> 
- * (note the two underscores).
+ * <p>As of SLF4J 2.0x, the module name for <em>jul-to-slf4j.jar</em> is
+ *  <b>jul.to.slf4j</b>. In SLF4J 1.7.x it was declared via an Automatic-Module-Name statement
+ *  as <b>jul_to_slf4j</b> (note the two underscores).
  *
- * 
  * @author Christian Stein
  * @author Joern Huxhorn
  * @author Ceki G&uuml;lc&uuml;
